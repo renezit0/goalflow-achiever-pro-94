@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { getAuthenticatedSupabaseClient } from '@/integrations/supabase/authenticated-client';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -122,11 +123,16 @@ export default function EditarUsuario() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!usuario) return;
+    if (!usuario || !currentUser) return;
 
     setSaving(true);
     try {
-      const { error } = await supabase
+      console.log('🔄 Tentando salvar usuário:', usuario.nome, 'como usuário:', currentUser.login);
+      
+      // Use authenticated client with current user login
+      const authClient = getAuthenticatedSupabaseClient(currentUser.login);
+      
+      const { error } = await authClient
         .from('usuarios')
         .update({
           nome: usuario.nome,
@@ -143,12 +149,17 @@ export default function EditarUsuario() {
         })
         .eq('id', usuario.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro do Supabase:', error);
+        throw error;
+      }
 
+      console.log('✅ Usuário salvo com sucesso!');
       toast.success('Usuário atualizado com sucesso!');
       navigate('/usuarios');
     } catch (error: any) {
-      toast.error('Erro ao salvar usuário: ' + error.message);
+      console.error('❌ Erro ao salvar:', error);
+      toast.error('Erro ao salvar usuário: ' + (error.message || 'Erro desconhecido'));
     } finally {
       setSaving(false);
     }

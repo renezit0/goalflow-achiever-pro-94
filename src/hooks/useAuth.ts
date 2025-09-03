@@ -72,6 +72,7 @@ export function useAuth() {
       console.log('✅ Login bem-sucedido, definindo usuário:', userData.nome);
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
       return { success: true };
     } catch (error) {
       console.log('❌ Erro no login:', error);
