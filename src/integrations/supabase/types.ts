@@ -2247,6 +2247,14 @@ export type Database = {
           vendas_geral_dia: number
         }[]
       }
+      get_current_user_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: number
+          loja_id: number
+          tipo: string
+        }[]
+      }
       upsert_vendas: {
         Args: { vendas_data: Json }
         Returns: undefined
